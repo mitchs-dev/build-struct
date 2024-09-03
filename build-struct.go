@@ -3,7 +3,7 @@ This is a tool designed to build a struct from a given JSON or YAML configuratio
 
 Usage:
 
-	build-struct <file>
+	build-struct <struct-name> <file>
 */
 package main
 
