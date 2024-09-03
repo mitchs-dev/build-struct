@@ -9,7 +9,7 @@ For my personal use case, I have structs which have a lot of fields and I have t
 ## Installation
 
 ```bash
-go get -u github.com/mitchs-dev/build-struct
+go install github.com/mitchs-dev/build-struct@latest
 ```
 
 ## Usage
