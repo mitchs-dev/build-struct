@@ -147,9 +147,11 @@ func structBuilder(data map[interface{}]interface{}, prefix string) string {
 				if _, ok := v[0].(map[interface{}]interface{}); ok {
 					fieldType = "[]struct {\n" + structBuilder(v[0].(map[interface{}]interface{}), prefix+"\t") + prefix + "}"
 				} else {
-					fieldType = getType(v[0])
+					// If the slice is not of maps, get the type of the first element
+					fieldType = "[]" + getType(v[0])
 				}
 			} else {
+				// If the slice is empty, default to []interface{}
 				fieldType = "[]interface{}"
 			}
 		default:
@@ -161,7 +163,6 @@ func structBuilder(data map[interface{}]interface{}, prefix string) string {
 
 	return structFields
 }
-
 func getType(v interface{}) string {
 	switch v := v.(type) {
 	case string:
