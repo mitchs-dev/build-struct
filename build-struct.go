@@ -89,6 +89,7 @@ func main() {
 
 }
 
+// determineFileType determines the file type of the provided file
 func determineFileType() {
 	// Read the file
 	fileData, err := os.ReadFile(filePath)
@@ -133,27 +134,43 @@ func buildStructFromData() string {
 
 // structBuilder builds a struct from the provided data
 func structBuilder(data map[interface{}]interface{}, prefix string) string {
+
+	// Initialize the struct fields
 	var structFields string
 
+	// Iterate over the data
 	for key, value := range data {
+
+		// Get the type of the value
 		var fieldType string
+
+		// Check the type of the value
 		switch v := value.(type) {
+		// If the value is a map, recursively build a struct for it
 		case map[interface{}]interface{}:
 			// If the value is a map, recursively build a struct for it
 			fieldType = "struct {\n" + structBuilder(v, prefix+"\t") + prefix + "}"
+		// If the value is a slice, check each element's type
 		case []interface{}:
-			// If the value is a slice, check if it's a slice of maps
-			if len(v) > 0 {
-				if _, ok := v[0].(map[interface{}]interface{}); ok {
-					fieldType = "[]struct {\n" + structBuilder(v[0].(map[interface{}]interface{}), prefix+"\t") + prefix + "}"
-				} else {
-					// If the slice is not of maps, get the type of the first element
-					fieldType = "[]" + getType(v[0])
+			// If the value is a slice, check each element's type
+			for _, elem := range v {
+				// Check the type of the element
+				switch elem := elem.(type) {
+				// If the element is a map, build a struct for it
+				case map[interface{}]interface{}:
+					// If the element is a map, build a struct for it
+					fieldType = "[]struct {\n" + structBuilder(elem, prefix+"\t") + prefix + "}"
+				// If the element is not a map, get its type
+				default:
+					// If the element is not a map, get its type
+					fieldType = "[]" + getType(elem)
 				}
-			} else {
+			}
+			if fieldType == "" {
 				// If the slice is empty, default to []interface{}
 				fieldType = "[]interface{}"
 			}
+		// If the value is not a map or a slice, get its type
 		default:
 			fieldType = getType(v)
 		}
@@ -163,6 +180,8 @@ func structBuilder(data map[interface{}]interface{}, prefix string) string {
 
 	return structFields
 }
+
+// getType returns the type of the provided value
 func getType(v interface{}) string {
 	switch v := v.(type) {
 	case string:
