@@ -134,43 +134,41 @@ func buildStructFromData() string {
 
 // structBuilder builds a struct from the provided data
 func structBuilder(data map[interface{}]interface{}, prefix string) string {
-
 	// Initialize the struct fields
 	var structFields string
 
 	// Iterate over the data
 	for key, value := range data {
-
 		// Get the type of the value
 		var fieldType string
 
 		// Check the type of the value
 		switch v := value.(type) {
-		// If the value is a map, recursively build a struct for it
 		case map[interface{}]interface{}:
-			// If the value is a map, recursively build a struct for it
 			fieldType = "struct {\n" + structBuilder(v, prefix+"\t") + prefix + "}"
-		// If the value is a slice, check each element's type
 		case []interface{}:
-			// If the value is a slice, check each element's type
-			for _, elem := range v {
-				// Check the type of the element
-				switch elem := elem.(type) {
-				// If the element is a map, build a struct for it
-				case map[interface{}]interface{}:
-					// If the element is a map, build a struct for it
-					fieldType = "[]struct {\n" + structBuilder(elem, prefix+"\t") + prefix + "}"
-				// If the element is not a map, get its type
-				default:
-					// If the element is not a map, get its type
-					fieldType = "[]" + getType(elem)
+			if len(v) > 0 {
+				// Check if the first element is a map
+				if _, ok := v[0].(map[interface{}]interface{}); ok {
+					// If it's a map, generate a slice of structs
+					fieldType = "[]struct {\n" + structBuilder(v[0].(map[interface{}]interface{}), prefix+"\t") + prefix + "}"
+				} else {
+					// If it's not a map, use the existing logic
+					types := make(map[string]bool)
+					for _, elem := range v {
+						types[getType(elem)] = true
+					}
+					if len(types) == 1 {
+						for t := range types {
+							fieldType = "[]" + t
+						}
+					} else {
+						fieldType = "[]interface{}"
+					}
 				}
-			}
-			if fieldType == "" {
-				// If the slice is empty, default to []interface{}
+			} else {
 				fieldType = "[]interface{}"
 			}
-		// If the value is not a map or a slice, get its type
 		default:
 			fieldType = getType(v)
 		}
