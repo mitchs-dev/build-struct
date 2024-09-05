@@ -83,3 +83,11 @@ type Config struct {
         } `yaml:"settings"`
 }
 ```
+
+## Caveats
+
+- `[]byte` values are a bit tricky to handle. If you need to support `[]byte` values, you will have to manually update the generated struct. The suggested approach is to use `string` instead of `[]byte` in the configuration file.
+
+## Contributing
+
+If you have any suggestions or improvements, feel free to open an issue or a pull request.
